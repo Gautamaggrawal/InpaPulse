@@ -339,7 +339,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!roomId) return;
         
         try {
-            const response = await fetch(`/api/get-available-beds/?room_id=${roomId}`);
+            const response = await fetch(`/admission/api/get-available-beds/?room_id=${roomId}`);
             if (!response.ok) {
                 throw new Error('Failed to fetch bed options');
             }
@@ -369,7 +369,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const floor = floorInput.value;
         
         if (roomType) {
-            fetch(`/api/get-room-availability/?room_type=${roomType}&floor=${floor}`)
+            fetch(`/admission/api/get-room-availability/?room_type=${roomType}&floor=${floor}`)
                 .then(response => response.json())
                 .then(data => {
                     const availabilityDiv = document.getElementById('availability_info');
