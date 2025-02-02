@@ -10,6 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
+import environ
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,7 +27,7 @@ SECRET_KEY = 'django-insecure-mv2o=wcc9m($l5li1)9r@j!evtxq7=o0%65#5oq9vp**o(!gnz
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['inpapulse.onrender.com']
+ALLOWED_HOSTS = ['inpapulse.onrender.com', '127.0.0.1']
 
 
 # Application definition
@@ -78,13 +80,15 @@ WSGI_APPLICATION = 'hospital.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
 
+# Initialize environ
+env = environ.Env()
+environ.Env.read_env()  # Reads the .env file
+
+# Use the environment variables to configure the database
+DATABASES = {
+    'default': env.db('DATABASE_URL', default='postgres://user:password@localhost:5432/dbname')
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
