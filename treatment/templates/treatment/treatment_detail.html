@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load bootstrap4 %}
+
+{% block content %}
+  <div class="container my-5">
+    <h1>{{ treatment.treatment_type }}</h1>
+    <p>Patient: {{ treatment.admission.patient.name }}</p>
+    <p>Date: {{ treatment.treatment_date|date:'Y-m-d H:i' }}</p>
+    <p>Performed by: {{ treatment.performed_by.name }}</p>
+    <p>Description: {{ treatment.description }}</p>
+    <p>Notes: {{ treatment.notes }}</p>
+
+    <h2>Medications</h2>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Medicine Name</th>
+          <th>Dosage</th>
+          <th>Route</th>
+          <th>Given At</th>
+          <th>Given By</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for medication in medications %}
+        <tr>
+          <td>{{ medication.medicine_name }}</td>
+          <td>{{ medication.dosage }}</td>
+          <td>{{ medication.get_route_display }}</td>
+          <td>{{ medication.given_at|date:'Y-m-d H:i' }}</td>
+          <td>{{ medication.given_by.name }}</td>
+          <td>{{ medication.notes }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

@@ -1,0 +1,90 @@
+{% load static %}
+{% load bootstrap4 %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InpaPulse - Modern IPD Management System</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/home.css' %}" type="text/css">
+    {% block extra_css %}
+    {% endblock %}
+</head>
+<body>
+    
+    <!-- Navbar -->
+    {% include 'admission/navbar.html' %}
+
+    {% block content %}{% endblock %}
+
+
+    
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>About InpaPulse</h5>
+                    <p>Modern IPD management solution designed to streamline hospital operations and enhance patient care.</p>
+                </div>
+                <div class="col-md-2">
+                    <h5>Product</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-light">Features</a></li>
+                        <li><a href="#" class="text-light">Pricing</a></li>
+                        <li><a href="#" class="text-light">Demo</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-2">
+                    <h5>Support</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-light">Documentation</a></li>
+                        <li><a href="#" class="text-light">Contact</a></li>
+                        <li><a href="#" class="text-light">FAQ</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>Contact Us</h5>
+                    <p>Email: contact@inpapulse.com<br>Phone: +1 (555) 123-4567</p>
+                </div>
+            </div>
+            <hr class="mt-4 mb-3 border-secondary">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">© 2025 InpaPulse. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-right">
+                    <a href="#" class="text-light mx-2">Privacy Policy</a>
+                    <a href="#" class="text-light mx-2">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+    <script>
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > 50) {
+                document.querySelector('.navbar-custom').classList.add('scrolled');
+            } else {
+                document.querySelector('.navbar-custom').classList.remove('scrolled');
+            }
+        });
+        $(document).ready(function() {
+            $('.datetimepicker').datetimepicker({
+                format: 'YYYY-MM-DD HH:mm:ss',
+            });
+        });
+    </script>
+    {% block script %}
+    {% endblock %}
+</body>
+</html>

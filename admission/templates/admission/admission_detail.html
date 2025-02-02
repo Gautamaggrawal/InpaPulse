@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+{% load bootstrap4 %}
+
+{% block extra_css %}
+<style>
+    .card {
+        transition: transform 0.2s;
+    }
+    .card:hover {
+        transform: translateY(-2px);
+    }
+    .table-hover tbody tr:hover {
+        background-color: rgba(0,0,0,.02);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-0">{{ admission.patient.name }}</h2>
+            <p class="text-muted mb-0">Admission #{{ admission.pk }}</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'admission_edit' admission.pk %}" class="btn btn-primary">
+                <i class="fas fa-edit me-2">&nbsp;</i>Edit Admission
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Patient Information Card -->
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-user-circle me-2 text-primary">&nbsp;</i>Patient Information
+                        </h5>
+                        <a href="{% url 'patient_detail' admission.patient.pk %}" class="btn btn-sm btn-outline-primary">
+                            View Profile
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <label class="text-muted small">Name</label>
+                            <p class="mb-3">{{ admission.patient.name }}</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="text-muted small">Age/Gender</label>
+                            <p class="mb-3">{{ admission.patient.age }} / {{ admission.patient.gender }}</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="text-muted small">Contact</label>
+                            <p class="mb-3">{{ admission.patient.contact_number }}</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="text-muted small">Email</label>
+                            <p class="mb-3">{{ admission.patient.email|default:"Not provided" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admission Status Card -->
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bed me-2 text-primary">&nbsp;</i>Admission Status
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <label class="text-muted small">Status</label>
+                            <p class="mb-3">
+                                <span class="badge {% if admission.status == 'admitted' %}bg-success{% elif admission.status == 'discharged' %}bg-danger{% else %}bg-warning{% endif %}">
+                                    {{ admission.get_status_display }}
+                                </span>
+                            </p>
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="text-muted small">Department</label>
+                            <p class="mb-3">{{ admission.bed.room.department.name }}</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="text-muted small">Room/Bed</label>
+                            <p class="mb-3">Room {{ admission.bed.room.room_number }} / Bed {{ admission.bed.bed_number }}</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="text-muted small">Duration</label>
+                            <p class="mb-3">{{ admission.admission_date|date:"M d, Y" }} - {{ admission.discharge_date|default:"Present" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Treatments Card -->
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-procedures me-2 text-primary">&nbsp;</i>Treatments
+                        </h5>
+                        <div>
+                            <a href="{% url 'treatment:treatment_and_medication' admission.id %}" class="btn btn-success btn-sm me-2 ml-2">
+                                <i class="fas fa-plus me-1">&nbsp;</i>Add Treatment
+                            </a>
+                            <a href="{% url 'treatment:admission_treatment_list' %}?admission_id={{ admission.id }}" class="btn btn-info btn-sm">
+                                <i class="fas fa-list me-1">&nbsp;</i>View All
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vitals Card -->
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-heartbeat me-2 text-primary">&nbsp;</i>Vitals
+                        </h5>
+                        <a href="{% url 'admission_vitals_create' admission.id %}" class="btn btn-success btn-sm">
+                            <i class="fas fa-plus me-1">&nbsp;</i>Add Vitals
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Date & Time</th>
+                                    <th>Temperature</th>
+                                    <th>Blood Pressure</th>
+                                    <th>Pulse Rate</th>
+                                    <th>Recorded By</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for vital in admission.vitals.all %}
+                                <tr>
+                                    <td>{{ vital.recorded_at|date:"M d, Y H:i" }}</td>
+                                    <td>{{ vital.temperature }}°C</td>
+                                    <td>{{ vital.blood_pressure_systolic }}/{{ vital.blood_pressure_diastolic }} mmHg</td>
+                                    <td>{{ vital.pulse_rate }} bpm</td>
+                                    <td>{{ vital.recorded_by|default:"N/A" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-3">No vitals recorded yet</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Diagnoses Card -->
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-stethoscope me-2 text-primary">&nbsp;</i>Diagnoses
+                        </h5>
+                        <a href="{% url 'admission_diagnoses_create' admission.id %}" class="btn btn-success btn-sm">
+                            <i class="fas fa-plus me-1">&nbsp;</i>Add Diagnosis
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Diagnosis</th>
+                                    <th>Doctor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for diagnosis in admission.diagnoses.all %}
+                                <tr>
+                                    <td>{{ diagnosis.diagnosis_date|date:"M d, Y" }}</td>
+                                    <td>{{ diagnosis.diagnosis }}</td>
+                                    <td>{{ diagnosis.diagnosed_by.name|default:"N/A" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted py-3">No diagnoses recorded yet</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

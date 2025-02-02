@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load bootstrap4 %}
+
+{% block content %}
+<div class="container">
+    <h2 class="text-center">Treatment and Medication</h2>
+    <form method="post">
+        {% csrf_token %}
+        
+        <!-- <h2>Treatment</h2> -->
+        {% bootstrap_form treatment_form %}
+
+        <!-- <h2>Medication</h2> -->
+        {% bootstrap_form  medication_form %}
+        
+            <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+</div>
+
+{% endblock %}

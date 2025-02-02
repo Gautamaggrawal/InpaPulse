@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block extra_css %}
+<style>
+    .card {
+        transition: transform 0.2s;
+    }
+    .table-hover tbody tr:hover {
+        background-color: rgba(0,0,0,.02);
+    }
+    .btn-group .btn {
+        border-radius: 4px;
+        margin-right: 0.25rem;
+    }
+    .badge {
+        font-weight: 500;
+    }
+    .card:hover {
+        transform: translateY(-2px);
+    }
+    .table-hover tbody tr:hover {
+        background-color: rgba(0,0,0,.02);
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-0">Treatment Records</h2>
+            <p class="text-muted">Manage and view patient treatments</p>
+        </div>
+        <div>
+            <a href="" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>New Treatment
+            </a>
+        </div>
+    </div>
+
+    <!-- Search and Filter Card -->
+    <div class="card shadow-sm border-3 mb-4">
+        <div class="card-header bg-white border-3">
+            <h5 class="mb-0">
+                <i class="fas fa-filter text-primary mr-2"></i>Search & Filters
+            </h5>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="patient_name" class="form-label text-muted">Patient Name</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text border-1 bg-light">
+                                <i class="fas fa-user text-muted"></i>
+                            </span>
+                        </div>
+                        <input type="text" class="form-control border-1 bg-light" id="patient_name" 
+                               name="patient_name" value="{{ request.GET.patient_name }}" 
+                               placeholder="Enter patient name">
+                    </div>
+                </div>
+                
+                
+
+                <div class="col-md-4 mb-3">
+                    <label for="admission_date" class="form-label text-muted">Start Date</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text border-1 bg-light">
+                                <i class="fas fa-calendar text-muted"></i>
+                            </span>
+                        </div>
+                        <input type="date" class="form-control border-1 bg-light" id="admission_date" 
+                               name="admission_date" value="{{ request.GET.admission_date }}">
+                    </div>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label for="discharge_date" class="form-label text-muted">End Date</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text border-1 bg-light">
+                                <i class="fas fa-calendar text-muted"></i>
+                            </span>
+                        </div>
+                        <input type="date" class="form-control border-1 bg-light" id="discharge_date" 
+                               name="discharge_date" value="{{ request.GET.discharge_date }}">
+                    </div>
+                </div>
+
+                <div class="col-12 mt-3">
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="fas fa-search mr-2"></i>Apply Filters
+                    </button>
+                    <a href="{% url 'room_allocation_list' %}" class="btn btn-outline-secondary px-4 ml-2">
+                        <i class="fas fa-times mr-2"></i>Clear
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Treatment List Card -->
+    <div class="card shadow-sm border-1">
+        <div class="card-header bg-white border-1 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="fas fa-list text-primary mr-2"></i>Treatment Records
+            </h5>
+            <button class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-print mr-2"></i>Print
+            </button>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date/Time</th>
+                            <th>Patient</th>
+                            <th style="width: 25%;">Treatment</th>
+                            <th>Performed By</th>
+                            <th style="width: 25%;">Medications</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for treatment in treatments %}
+                        <tr>
+                            <td>
+                                <div class="fw-bold">{{ treatment.treatment_date|date:"M d, Y" }}</div>
+                                <small class="text-muted">{{ treatment.treatment_date|date:"H:i" }}</small>
+                            </td>
+                            <td>
+                                <div class="fw-semibold">{{ treatment.admission.patient.name }}</div>
+                                <small class="text-muted">ID: #{{ treatment.admission.patient.id }}</small>
+                            </td>
+                            <td>
+                                <div class="fw-semibold">{{ treatment.treatment_type }}</div>
+                                <small class="text-muted">{{ treatment.description|truncatewords:20 }}</small>
+                            </td>
+                            <td>
+                                <div>{{ treatment.performed_by.name }}</div>
+                                <small class="text-muted">{{ treatment.performed_by.role }}</small>
+                            </td>
+                            <td>
+                                {% for medication in treatment.medications.all %}
+                                <div class="mb-2 p-2 bg-light rounded">
+                                    <div class="fw-semibold">{{ medication.medicine_name }}</div>
+                                    <div class="small">
+                                        <span class="badge bg-info">{{ medication.dosage }}</span>
+                                        <span class="badge bg-secondary">{{ medication.get_route_display }}</span>
+                                    </div>
+                                    <small class="text-muted">Given by: {{ medication.given_by.name }}</small>
+                                </div>
+                                {% empty %}
+                                <span class="text-muted small">No medications recorded</span>
+                                {% endfor %}
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{% url 'treatment:treatment_detail' treatment.id %}" 
+                                       class="btn btn-sm btn-outline-info">
+                                       <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'treatment:treatment_detail' treatment.id %}" 
+                                       class="btn btn-sm btn-outline-primary ml-2">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'treatment:add_medication' treatment.id %}" 
+                                       class="btn btn-sm btn-outline-success ml-2">
+                                       <i class="fas fa-pills me-1">&nbsp;</i>Add Medication
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4">
+                                <div class="text-muted">
+                                    <i class="fas fa-clipboard-list fa-2x mb-2"></i>
+                                    <p>No treatments found</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if patient_name %}&patient_name={{ patient_name }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}">
+                    <i class="fas fa-chevron-left me-1"></i>Previous
+                </a>
+            </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+            {% if num == page_obj.number %}
+            <li class="page-item active">
+                <span class="page-link">{{ num }}</span>
+            </li>
+            {% else %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ num }}{% if patient_name %}&patient_name={{ patient_name }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}">{{ num }}</a>
+            </li>
+            {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if patient_name %}&patient_name={{ patient_name }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}">
+                    Next<i class="fas fa-chevron-right ms-1"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+
+{% endblock %}

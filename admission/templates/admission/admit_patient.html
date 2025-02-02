@@ -1,0 +1,401 @@
+{% extends 'base.html' %}
+{% load bootstrap4 %}
+{% load custom_filters %}
+
+{% block extra_css %}
+<style>
+    .card {
+        transition: transform 0.2s;
+    }
+    .table-hover tbody tr:hover {
+        background-color: rgba(0,0,0,.02);
+    }
+    .btn-group .btn {
+        border-radius: 4px;
+        margin-right: 0.25rem;
+    }
+    .badge {
+        font-weight: 500;
+    }
+    .card:hover {
+        transform: translateY(-2px);
+    }
+    .table-hover tbody tr:hover {
+        background-color: rgba(0,0,0,.02);
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container-fluid p-4">
+        <!-- Header Section -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="mb-1">Admit Patient</h2>
+                <p class="text-muted mb-0">Register a patient and assign room</p>
+            </div>
+        </div>
+    {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+            <h5 class="alert-heading">Please correct the following errors:</h5>
+            {% for error in form.non_field_errors %}
+                <p class="mb-0">{{ error }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    
+    {% if form.errors %}
+    <div class="alert alert-danger">
+        <h5 class="alert-heading">Please correct the following errors:</h5>
+        <p class="mb-0">{{form.errors}}</p>
+    </div>
+    {% endif %}
+
+
+
+    <form method="post" class="needs-validation" novalidate>
+        {% csrf_token %}
+        
+        
+        <div class="row g-4">
+            
+            {# Assignment Type Selection #}
+            <div class="col-md-6">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-bed me-2 text-primary">&nbsp;</i>Admission Status
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-check form-check-inline">
+                            {% if form.assignment_type.errors %}
+                                <div class="alert alert-danger">
+                                    {{ form.assignment_type.errors }}
+                                </div>
+                            {% endif %}
+                            {% bootstrap_field form.assignment_type %}
+                        </div>
+        
+                        <div id="auto-assignment-fields" class="form-group">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    {% if form.room_type.errors %}
+                                        <div class="alert alert-danger">
+                                            {{ form.room_type.errors }}
+                                        </div>
+                                    {% endif %}
+                                    {% bootstrap_field form.room_type %}
+                                </div>
+                                <div class="col-md-6">
+                                    {% if form.preferred_floor.errors %}
+                                        <div class="alert alert-danger">
+                                            {{ form.preferred_floor.errors }}
+                                        </div>
+                                    {% endif %}
+                                    {% bootstrap_field form.preferred_floor %}
+                                </div>
+                                <div id="availability_info"></div>
+                            </div>
+                        </div>
+        
+                        <div id="manual-assignment-fields" class="form-group">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    {% if form.room.errors %}
+                                        <div class="alert alert-danger">
+                                            {{ form.room.errors }}
+                                        </div>
+                                    {% endif %}
+                                    {% bootstrap_field form.room %}
+                                </div>
+                                <div class="col-md-6">
+                                    {% if form.bed.errors %}
+                                        <div class="alert alert-danger">
+                                            {{ form.bed.errors }}
+                                        </div>
+                                    {% endif %}
+                                    {% bootstrap_field form.bed %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+                
+            </div>
+
+            {# Patient Selection #}
+            <div class="col-md-6">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-user-circle me-2 text-primary">&nbsp;</i>Patient Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                {% for field in form %}
+                                    {% if field.name in 'name,age,gender'|split:',' %}
+                                        {% if field.errors %}
+                                            <div class="alert alert-danger">
+                                                {{ field.errors }}
+                                            </div>
+                                        {% endif %}
+                                        {% bootstrap_field field %}
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-6">
+                                {% for field in form %}
+                                    {% if field.name in 'mobile,address'|split:',' %}
+                                        {% if field.errors %}
+                                            <div class="alert alert-danger">
+                                                {{ field.errors }}
+                                            </div>
+                                        {% endif %}
+                                        {% bootstrap_field field %}
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# Admission Details #}
+            <div class="col-12 mt-3">
+                <div class="card shadow-sm border-2">
+                    <div class="card-header bg-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="fas fa-bed me-2 me-2 text-primary">&nbsp;</i>Admission Details
+                            </h5>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                {% for field in form %}
+                                    {% if field.name in 'admission_date,admission_time,doctor'|split:',' %}
+                                        {% if field.errors %}
+                                            <div class="alert alert-danger">
+                                                {{ field.errors }}
+                                            </div>
+                                        {% endif %}
+                                        {% bootstrap_field field %}
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-6">
+                                {% for field in form %}
+                                    {% if field.name in 'attendant,admission_by,service_package'|split:',' %}
+                                        {% if field.errors %}
+                                            <div class="alert alert-danger">
+                                                {{ field.errors }}
+                                            </div>
+                                        {% endif %}
+                                        {% bootstrap_field field %}
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# Payment Information #}
+            <div class="col-12 mt-3 border-0">
+                <div class="card shadow-sm border-2">
+                    <div class="card-header bg-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="fas fa fa-credit-card	me-2 text-primary">&nbsp;</i>Payment Information
+                            </h5>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group form-check form-check-inline">
+                            {% if form.payment_method.errors %}
+                                    <div class="alert alert-danger">
+                                        {{ form.payment_method.errors }}
+                                    </div>
+                                {% endif %}
+                            {% bootstrap_field form.payment_method %}
+                        </div>
+        
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    {% if form.total_amount.errors %}
+                                        <div class="alert alert-danger">
+                                            {{ form.total_amount.errors }}
+                                        </div>
+                                    {% endif %}
+                                    {% bootstrap_field form.total_amount %}
+                                </div>
+                                <div class="col-md-6">
+                                    {% if form.advance_payment.errors %}
+                                        <div class="alert alert-danger">
+                                            {{ form.advance_payment.errors }}
+                                        </div>
+                                    {% endif %}
+                                    {% bootstrap_field form.advance_payment %}
+                                </div>
+                                <div class="col-md-6">
+                                    {% if form.balance_remaining.errors %}
+                                        <div class="alert alert-danger">
+                                            {{ form.balance_remaining.errors }}
+                                        </div>
+                                    {% endif %}
+                                    {% bootstrap_field form.balance_remaining %}
+                                </div>
+                            </div>
+                        </div>
+        
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-3 mb-3">
+            <button type="submit" class="btn btn-primary px-5"><i class="fas fa-plus me-2"></i>Admit Patient</button>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("{{form.errors}}")
+    const totalAmountInput = document.getElementById("id_total_amount");
+    const advancePaymentInput = document.getElementById("id_advance_payment");
+    const balanceRemainingInput = document.getElementById("id_balance_remaining");
+
+    function updateBalance() {
+        const totalAmount = parseFloat(totalAmountInput.value) || 0;
+        const advancePayment = parseFloat(advancePaymentInput.value) || 0;
+        const balance = totalAmount - advancePayment;
+
+        balanceRemainingInput.value = balance.toFixed(2);
+    }
+
+    totalAmountInput.addEventListener("input", updateBalance);
+    advancePaymentInput.addEventListener("input", updateBalance);
+    const roomTypeSelect = document.getElementById('id_room_type');
+    const floorInput = document.getElementById('id_preferred_floor');
+    
+
+    // Form validation
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+
+    // Assignment type toggle
+    function toggleAssignmentFields() {
+        const assignmentType = document.querySelector('input[name="assignment_type"]:checked').value;
+        const autoFields = document.getElementById('auto-assignment-fields');
+        const manualFields = document.getElementById('manual-assignment-fields');
+        
+        autoFields.style.display = assignmentType === 'auto' ? 'block' : 'none';
+        manualFields.style.display = assignmentType === 'manual' ? 'block' : 'none';
+
+        // Reset validation state when switching
+        const fieldsToReset = assignmentType === 'auto' ? 
+            manualFields.querySelectorAll('input, select') : 
+            autoFields.querySelectorAll('input, select');
+        
+        fieldsToReset.forEach(field => {
+            field.classList.remove('is-invalid');
+            const feedbackDiv = field.parentElement.querySelector('.invalid-feedback');
+            if (feedbackDiv) {
+                feedbackDiv.remove();
+            }
+        });
+    }
+    
+
+    // Initial toggle on page load
+    toggleAssignmentFields();
+
+    // Toggle when assignment type changes
+    document.querySelectorAll('input[name="assignment_type"]').forEach(radio => {
+        radio.addEventListener('change', toggleAssignmentFields);
+    });
+
+    // Dynamic bed options based on room selection
+    const roomSelect = document.querySelector('select[name="room"]');
+    const bedSelect = document.querySelector('select[name="bed"]');
+    
+    async function updateBedOptions() {
+        const roomId = roomSelect.value;
+        bedSelect.innerHTML = '<option value="">Select Bed</option>';
+        
+        if (!roomId) return;
+        
+        try {
+            const response = await fetch(`/api/get-available-beds/?room_id=${roomId}`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch bed options');
+            }
+            const data = await response.json();
+            console.log(data)
+            
+            data.beds.forEach(bed => {
+                const option = document.createElement('option');
+                option.value = bed.id;
+                option.textContent = bed.bed_number;
+                bedSelect.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Error fetching bed options:', error);
+            const errorAlert = document.createElement('div');
+            errorAlert.className = 'alert alert-danger mt-2';
+            errorAlert.textContent = 'Failed to load bed options. Please try again.';
+            bedSelect.parentElement.appendChild(errorAlert);
+            setTimeout(() => errorAlert.remove(), 5000);
+        }
+    }
+
+    roomSelect.addEventListener('change', updateBedOptions);
+    function updateAvailability() {
+        console.log("yeyeyey")
+        const roomType = roomTypeSelect.value;
+        const floor = floorInput.value;
+        
+        if (roomType) {
+            fetch(`/api/get-room-availability/?room_type=${roomType}&floor=${floor}`)
+                .then(response => response.json())
+                .then(data => {
+                    const availabilityDiv = document.getElementById('availability_info');
+                    if(data.availability.length <=0){
+                        console.log("ffddf")
+                        
+                        availabilityDiv.innerHTML = `<div class="alert alert-danger">
+                                No beds available!
+                            </div>`;
+                        return
+                    }
+                    console.log(data.availability.length,"fssdsd")
+                    availabilityDiv.innerHTML = '';
+                    
+                    data.availability.forEach(item => {
+                        availabilityDiv.innerHTML += `
+                            <div class="alert alert-info">
+                                Floor ${item.floor}: ${item.available_beds} beds available
+                            </div>`;
+                    });
+                });
+        }
+    }
+
+    roomTypeSelect.addEventListener('change', updateAvailability);
+    floorInput.addEventListener('input', updateAvailability);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,269 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block extra_css %}
+<style>
+    .card {
+        transition: transform 0.2s;
+    }
+    .table-hover tbody tr:hover {
+        background-color: rgba(0,0,0,.02);
+    }
+    .btn-group .btn {
+        border-radius: 4px;
+        margin-right: 0.25rem;
+    }
+    .badge {
+        font-weight: 500;
+    }
+    .card:hover {
+        transform: translateY(-2px);
+    }
+    .table-hover tbody tr:hover {
+        background-color: rgba(0,0,0,.02);
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container-fluid p-4">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="mymargin">
+            <h2 class="mb-1">Room Management</h2>
+            <p class="text-muted mb-0">Monitor and manage room allocations</p>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-3 mb-3">
+                <div class="card-body d-flex align-items-center">
+                    <div class="bg-primary p-3 rounded-circle mr-3">
+                        <i class="fas fa-bed text-white fa-2x"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-1">Total Rooms</h6>
+                        <h2 class="mb-0 font-weight-bold">{{ total_rooms }}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-3 mb-3">
+                <div class="card-body d-flex align-items-center">
+                    <div class="bg-success p-3 rounded-circle mr-3">
+                        <i class="fas fa-door-closed text-white fa-2x"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-1">Occupied Rooms</h6>
+                        <h2 class="mb-0 font-weight-bold">{{ occupied_rooms }}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-3 mb-3">
+                <div class="card-body d-flex align-items-center">
+                    <div class="bg-info p-3 rounded-circle mr-3">
+                        <i class="fas fa-door-open text-white fa-2x"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-1">Available Rooms</h6>
+                        <h2 class="mb-0 font-weight-bold">{{ total_rooms|subtract:occupied_rooms }}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card shadow-sm border-3 mb-4">
+        <div class="card-header bg-white border-3">
+            <h5 class="mb-0">
+                <i class="fas fa-filter text-primary mr-2"></i>Search & Filters
+            </h5>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row">
+                <div class="col-md-3 mb-3">
+                    <label for="patient_name" class="form-label text-muted">Patient Name</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text border-1 bg-light">
+                                <i class="fas fa-user text-muted"></i>
+                            </span>
+                        </div>
+                        <input type="text" class="form-control border-1 bg-light" id="patient_name" 
+                               name="patient_name" value="{{ request.GET.patient_name }}" 
+                               placeholder="Enter patient name">
+                    </div>
+                </div>
+                
+                <div class="col-md-3 mb-3">
+                    <label for="admission_status" class="form-label text-muted">Admission Status</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text border-1 bg-light">
+                                <i class="fas fa-filter text-muted"></i>
+                            </span>
+                        </div>
+                        <select class="custom-select border-1 bg-light" id="admission_status" name="admission_status">
+                            <option selected>All Statuses...</option>
+                            <option value="admitted" {% if request.GET.admission_status == 'admitted' %}selected{% endif %}>Admitted</option>
+                            <option value="discharged" {% if request.GET.admission_status == 'discharged' %}selected{% endif %}>Discharged</option>
+                            <option value="pending" {% if request.GET.admission_status == 'pending' %}selected{% endif %}>Pending</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <label for="admission_date" class="form-label text-muted">Admission Date</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text border-1 bg-light">
+                                <i class="fas fa-calendar text-muted"></i>
+                            </span>
+                        </div>
+                        <input type="date" class="form-control border-1 bg-light" id="admission_date" 
+                               name="admission_date" value="{{ request.GET.admission_date }}">
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <label for="discharge_date" class="form-label text-muted">Discharge Date</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text border-1 bg-light">
+                                <i class="fas fa-calendar text-muted"></i>
+                            </span>
+                        </div>
+                        <input type="date" class="form-control border-1 bg-light" id="discharge_date" 
+                               name="discharge_date" value="{{ request.GET.discharge_date }}">
+                    </div>
+                </div>
+
+                <div class="col-12 mt-3">
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="fas fa-search mr-2"></i>Apply Filters
+                    </button>
+                    <a href="{% url 'room_allocation_list' %}" class="btn btn-outline-secondary px-4 ml-2">
+                        <i class="fas fa-times mr-2"></i>Clear
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Room Allocation List -->
+    <div class="card shadow-sm border-1">
+        <div class="card-header bg-white border-1 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="fas fa-list text-primary mr-2"></i>Current Room Allocations
+            </h5>
+            <button class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-print mr-2"></i>Print
+            </button>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Room No.</th>
+                            <th>Patient Name</th>
+                            <th>Admission Date/Time</th>
+                            <th>Duration</th>
+                            <th>Room Type</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                            <th>Add Vitals</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for allocation in allocations %}
+                        <tr>
+                            <td class="font-weight-bold">{{ allocation.bed.room.room_number }}</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-light rounded-circle p-2 mr-2">
+                                        <i class="fas fa-user text-primary"></i>
+                                    </div>
+                                    <a href="{% url 'patient_detail' allocation.patient.id %}" class="text-decoration-none">
+                                        {{ allocation.patient.name }}
+                                    </a>
+                                </div>
+                            </td>
+                            <td>{{ allocation.admission_date|date:"M d, Y H:i" }}</td>
+                            <td>{{ allocation.admission_date|timesince }}</td>
+                            <td>
+                                <span class="badge badge-primary">
+                                    {{ allocation.bed.room.get_room_type_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge badge-success">Occupied</span>
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{% url 'admission_detail' allocation.id %}" 
+                                       class="btn btn-sm btn-outline-info">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'admission_edit' allocation.id %}" 
+                                       class="btn btn-sm btn-outline-primary ml-2">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                </div>
+                            </td>
+                            <td>
+                                <a href="{% url 'admission_vitals_create' allocation.id %}" 
+                                   class="btn btn-sm btn-outline-success">
+                                    <i class="fas fa-plus mr-1"></i>Vitals
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4 text-muted">
+                                <i class="fas fa-bed fa-2x mb-3 d-block"></i>
+                                No rooms currently allocated
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+            <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}
