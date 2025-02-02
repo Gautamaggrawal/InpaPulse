@@ -19,11 +19,13 @@ from django.urls import path, include
 from django.views.generic import TemplateView
 from django.conf import settings
 from django.conf.urls.static import static
-
+from admission.views import CustomLoginView, CustomLogoutView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('admission/',  include('admission.urls')),
     path('treatment/',  include('treatment.urls')),
+    path('login/', CustomLoginView.as_view(), name='login'),
+    path('logout/', CustomLogoutView.as_view(), name='auth_logout'),
     path('', TemplateView.as_view(
         template_name="home.html"), name='landing_page'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

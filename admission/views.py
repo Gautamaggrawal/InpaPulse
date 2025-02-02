@@ -10,8 +10,11 @@ from .models import Admission, Room, Bed, Patient
 from .forms import (
     AdmissionForm,
     AdmissionVitalsCreateForm,
-    AdmissionDiagnosisCreateForm
+    AdmissionDiagnosisCreateForm,
+    CustomAuthenticationForm
 )
+from django.contrib import messages
+from django.contrib.auth.views import LoginView, LogoutView
 
 # Mixin for common admission-related functionality
 
@@ -190,3 +193,25 @@ def get_room_availability(request):
     )
 
     return JsonResponse({'availability': list(availability)})
+
+
+class CustomLoginView(LoginView):
+    template_name = 'login.html'
+    form_class = CustomAuthenticationForm
+    redirect_authenticated_user = True
+
+    def get_success_url(self):
+        return reverse_lazy('room_allocation_list')
+
+    def form_invalid(self, form):
+        messages.error(self.request, 'Invalid username or password')
+        return super().form_invalid(form)
+
+
+class CustomLogoutView(LogoutView):
+    next_page = reverse_lazy('login')
+
+    def dispatch(self, request, *args, **kwargs):
+        response = super().dispatch(request, *args, **kwargs)
+        messages.success(request, 'You have been successfully logged out.')
+        return response

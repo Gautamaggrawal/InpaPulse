@@ -11,9 +11,6 @@ urlpatterns = [
          name='treatment_detail'),
     path('<int:treatment_id>/add-medication/',
          add_medication, name='add_medication'),
-    path('add-treatment/',
-         TreatmentAndMedicationView.as_view(), name='add-treatment'),
-
     path('patient/<int:pk>/treatment-and-medication/',
          TreatmentAndMedicationView.as_view(), name='treatment_and_medication'),
 ]

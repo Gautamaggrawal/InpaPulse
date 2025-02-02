@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load bootstrap4 %}
+{% block extra_css %}
+<style>
+    .card {
+        border-radius: 10px;
+    }
+    
+    .btn-primary {
+        padding: 0.75rem 1rem;
+        font-weight: 500;
+    }
+    
+    .form-floating {
+        margin-bottom: 1rem;
+    }
+    
+    .invalid-feedback {
+        display: block;
+    }
+    </style>
+{% endblock %}
+{% block content %}
+<div class="mt-5 pt-5">
+    <div class="row justify-content-center mymargin">
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <h2 class="h4">Welcome to InpaPulse</h2>
+                        <p class="text-muted">Please sign in to continue</p>
+                    </div>
+
+                    {% bootstrap_messages %}
+
+                    <form method="post" action="{% url 'login' %}">
+                        {% csrf_token %}
+                        {% bootstrap_form form layout='floating' %}
+                        {% buttons %}
+                            <button type="submit" class="btn btn-primary w-100">
+                                Sign In
+                            </button>
+                        {% endbuttons %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

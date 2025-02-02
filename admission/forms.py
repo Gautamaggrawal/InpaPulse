@@ -1,3 +1,4 @@
+from django.contrib.auth.forms import AuthenticationForm
 from .models import AdmissionDiagnosis
 from django import forms
 from django.utils import timezone
@@ -286,3 +287,16 @@ class AdmissionDiagnosisCreateForm(forms.ModelForm):
         except Admission.DoesNotExist:
             raise forms.ValidationError('Admission not found')
         return admission
+
+
+class CustomAuthenticationForm(AuthenticationForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['username'].widget.attrs.update({
+            'placeholder': 'Username',
+            'autocomplete': 'username'
+        })
+        self.fields['password'].widget.attrs.update({
+            'placeholder': 'Password',
+            'autocomplete': 'current-password'
+        })
